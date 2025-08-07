@@ -1,72 +1,72 @@
--- Load Spawner silently
-local Spawner = loadstring(game:HttpGet("https://codeberg.org/GrowAFilipino/GrowAGarden/raw/branch/main/Spawner.lua"))()
-Spawner.Load = function() end
-pcall(function() Spawner.Load() end)
-
 -- Services
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
 -- Cleanup
-local GUI_NAME = "BenGrowHub"
+local GUI_NAME = "BenPetSpawner"
 if PlayerGui:FindFirstChild(GUI_NAME) then
 	PlayerGui[GUI_NAME]:Destroy()
 end
 
 -- GUI Setup
-local screenGui = Instance.new("ScreenGui", PlayerGui)
+local screenGui = Instance.new("ScreenGui")
 screenGui.Name = GUI_NAME
 screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
 
-local mainFrame = Instance.new("Frame", screenGui)
-mainFrame.Size = UDim2.new(0, 300, 0, 240)
-mainFrame.Position = UDim2.new(0.5, -150, 0.5, -150)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 320, 0, 200)
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
 mainFrame.Active = true
 mainFrame.Draggable = true
-mainFrame.ClipsDescendants = false
+mainFrame.Parent = screenGui
+
 Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 10)
 Instance.new("UIStroke", mainFrame).Color = Color3.fromRGB(0, 255, 130)
 
 -- Title
 local title = Instance.new("TextLabel", mainFrame)
-title.Size = UDim2.new(1, -20, 0, 32)
-title.Position = UDim2.new(0.5, 0, 0, 6)
-title.AnchorPoint = Vector2.new(0.5, 0)
+title.Size = UDim2.new(1, -40, 0, 30)
+title.Position = UDim2.new(0, 10, 0, 10)
 title.BackgroundTransparency = 1
 title.Font = Enum.Font.GothamBold
-title.TextSize = 24
+title.TextSize = 22
 title.TextColor3 = Color3.fromRGB(170, 255, 170)
-title.Text = "Instant Pet Cloner"
+title.Text = "Ben Pet Spawner"
+title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Subtitle
-local subtitle = Instance.new("TextLabel", mainFrame)
-subtitle.Size = UDim2.new(1, -20, 0, 20)
-subtitle.Position = UDim2.new(0.5, 0, 0, 38)
-subtitle.AnchorPoint = Vector2.new(0.5, 0)
-subtitle.BackgroundTransparency = 1
-subtitle.Font = Enum.Font.Gotham
-subtitle.TextSize = 14
-subtitle.TextColor3 = Color3.fromRGB(200, 255, 200)
-subtitle.Text = "Made by BenGrowHub"
+-- Close Button
+local closeBtn = Instance.new("TextButton", mainFrame)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -40, 0, 10)
+closeBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+closeBtn.Text = "X"
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.TextSize = 18
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
+closeBtn.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
 
--- Start button
+-- Start Button
 local startButton = Instance.new("TextButton", mainFrame)
-startButton.Size = UDim2.new(0.8, 0, 0, 32)
-startButton.Position = UDim2.new(0.5, 0, 0, 70)
+startButton.Size = UDim2.new(0.85, 0, 0, 34)
+startButton.Position = UDim2.new(0.5, 0, 0, 60)
 startButton.AnchorPoint = Vector2.new(0.5, 0)
 startButton.BackgroundColor3 = Color3.fromRGB(90, 0, 110)
-startButton.Text = "Start the Pet Cloning"
+startButton.Text = "Start the Pet Spawner"
 startButton.Font = Enum.Font.GothamBold
 startButton.TextSize = 15
 startButton.TextColor3 = Color3.new(1, 1, 1)
 Instance.new("UICorner", startButton).CornerRadius = UDim.new(0, 6)
 
--- Loading bar
+-- Loading Bar
 local loadingBarBack = Instance.new("Frame", mainFrame)
-loadingBarBack.Size = UDim2.new(0.8, 0, 0, 12)
+loadingBarBack.Size = UDim2.new(0.85, 0, 0, 12)
 loadingBarBack.Position = UDim2.new(0.5, 0, 0, 110)
 loadingBarBack.AnchorPoint = Vector2.new(0.5, 0)
 loadingBarBack.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
@@ -78,9 +78,8 @@ loadingBarFill.Size = UDim2.new(0, 0, 1, 0)
 loadingBarFill.BackgroundColor3 = Color3.fromRGB(0, 255, 130)
 Instance.new("UICorner", loadingBarFill).CornerRadius = UDim.new(0, 6)
 
--- Loading percent text
 local loadingPercent = Instance.new("TextLabel", mainFrame)
-loadingPercent.Size = UDim2.new(0.8, 0, 0, 20)
+loadingPercent.Size = UDim2.new(0.85, 0, 0, 20)
 loadingPercent.Position = UDim2.new(0.5, 0, 0, 130)
 loadingPercent.AnchorPoint = Vector2.new(0.5, 0)
 loadingPercent.BackgroundTransparency = 1
@@ -90,97 +89,55 @@ loadingPercent.TextColor3 = Color3.new(1, 1, 1)
 loadingPercent.Text = "Loading... 0%"
 loadingPercent.Visible = false
 
--- Dropdown
-local petDrop = Instance.new("TextButton", mainFrame)
-petDrop.Size = UDim2.new(0.8, 0, 0, 30)
-petDrop.Position = UDim2.new(0.5, 0, 0, 60)
-petDrop.AnchorPoint = Vector2.new(0.5, 0)
-petDrop.BackgroundColor3 = Color3.fromRGB(60, 0, 90)
-petDrop.Text = "Choose a pet to clone"
-petDrop.Font = Enum.Font.GothamBold
-petDrop.TextSize = 15
-petDrop.TextColor3 = Color3.new(1, 1, 1)
-petDrop.Visible = false
-Instance.new("UICorner", petDrop).CornerRadius = UDim.new(0, 6)
+-- Pet Name Input
+local petNameInput = Instance.new("TextBox", mainFrame)
+petNameInput.Name = "PetName"
+petNameInput.Size = UDim2.new(0.85, 0, 0, 30)
+petNameInput.Position = UDim2.new(0.5, 0, 0, 60)
+petNameInput.AnchorPoint = Vector2.new(0.5, 0)
+petNameInput.BackgroundColor3 = Color3.fromRGB(60, 0, 90)
+petNameInput.PlaceholderText = "Pet Name"
+petNameInput.Font = Enum.Font.Gotham
+petNameInput.TextSize = 14
+petNameInput.TextColor3 = Color3.new(1, 1, 1)
+petNameInput.Visible = false
+Instance.new("UICorner", petNameInput).CornerRadius = UDim.new(0, 6)
 
-local dropdownList = Instance.new("Frame", screenGui)
-dropdownList.Size = UDim2.new(0.8, 0, 0, 170)
-dropdownList.Position = UDim2.new(0.5, 0, 0, 194)
-dropdownList.AnchorPoint = Vector2.new(0.5, 0)
-dropdownList.BackgroundColor3 = Color3.fromRGB(40, 0, 60)
-dropdownList.Visible = false
-dropdownList.ZIndex = 2
-Instance.new("UICorner", dropdownList).CornerRadius = UDim.new(0, 6)
+-- Weight & Age Inputs
+local inputContainer = Instance.new("Frame", mainFrame)
+inputContainer.Size = UDim2.new(0.85, 0, 0, 30)
+inputContainer.Position = UDim2.new(0.5, 0, 0, 100)
+inputContainer.AnchorPoint = Vector2.new(0.5, 0)
+inputContainer.BackgroundTransparency = 1
+inputContainer.Visible = false
 
-local layout = Instance.new("UIListLayout", dropdownList)
-layout.Padding = UDim.new(0, 2)
-layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-local validPets = {
-	"Kitsune", "Corrupted Kitsune", "Spinosaurus", "T-Rex", "Dragonfly",
-	"Raccoon", "Disco Bee", "Butterfly", "Mimic Octopus"
-}
-
-local selectedPet = nil
-for _, petName in ipairs(validPets) do
-	local option = Instance.new("TextButton", dropdownList)
-	option.Size = UDim2.new(1, 0, 0, 24)
-	option.BackgroundColor3 = Color3.fromRGB(80, 0, 100)
-	option.Text = petName
-	option.Font = Enum.Font.GothamBold
-	option.TextSize = 14
-	option.TextColor3 = Color3.new(1, 1, 1)
-	option.ZIndex = 3
-	Instance.new("UICorner", option).CornerRadius = UDim.new(0, 6)
-
-	option.MouseButton1Click:Connect(function()
-		petDrop.Text = petName
-		selectedPet = petName
-		dropdownList.Visible = false
-	end)
-end
-
-petDrop.MouseButton1Click:Connect(function()
-	local absPos = petDrop.AbsolutePosition
-	local absSize = petDrop.AbsoluteSize
-
-	dropdownList.Size = UDim2.new(0, absSize.X, 0, 150)
-	dropdownList.Position = UDim2.new(0, absPos.X, 0, absPos.Y + absSize.Y)
-	dropdownList.AnchorPoint = Vector2.new(0, 0) -- ensure it's top-left anchored
-	dropdownList.Visible = not dropdownList.Visible
-end)
-
-
--- Weight input
-local weight = Instance.new("TextBox", mainFrame)
-weight.Size = UDim2.new(0.8, 0, 0, 30)
-weight.Position = UDim2.new(0.5, 0, 0, 92)
-weight.AnchorPoint = Vector2.new(0.5, 0)
+local weight = Instance.new("TextBox", inputContainer)
+weight.Name = "Weight"
+weight.Size = UDim2.new(0.48, -2, 1, 0)
+weight.Position = UDim2.new(0, 0, 0, 0)
 weight.BackgroundColor3 = Color3.fromRGB(70, 0, 90)
-weight.PlaceholderText = "Enter Weight (kg)"
+weight.PlaceholderText = "Weight (kg)"
 weight.Font = Enum.Font.Gotham
 weight.TextSize = 14
 weight.TextColor3 = Color3.new(1, 1, 1)
-weight.Visible = false
 Instance.new("UICorner", weight).CornerRadius = UDim.new(0, 6)
 
--- Age input
-local age = Instance.new("TextBox", mainFrame)
-age.Size = UDim2.new(0.8, 0, 0, 30)
-age.Position = UDim2.new(0.5, 0, 0, 124)
-age.AnchorPoint = Vector2.new(0.5, 0)
+local age = Instance.new("TextBox", inputContainer)
+age.Name = "Age"
+age.Size = UDim2.new(0.48, -2, 1, 0)
+age.Position = UDim2.new(1, 0, 0, 0)
+age.AnchorPoint = Vector2.new(1, 0)
 age.BackgroundColor3 = Color3.fromRGB(70, 0, 90)
-age.PlaceholderText = "Enter Age"
+age.PlaceholderText = "Age"
 age.Font = Enum.Font.Gotham
 age.TextSize = 14
 age.TextColor3 = Color3.new(1, 1, 1)
-age.Visible = false
 Instance.new("UICorner", age).CornerRadius = UDim.new(0, 6)
 
--- Submit
+-- Submit Button
 local submit = Instance.new("TextButton", mainFrame)
-submit.Size = UDim2.new(0.8, 0, 0, 30)
-submit.Position = UDim2.new(0.5, 0, 0, 155)
+submit.Size = UDim2.new(0.85, 0, 0, 32)
+submit.Position = UDim2.new(0.5, 0, 0, 140)
 submit.AnchorPoint = Vector2.new(0.5, 0)
 submit.BackgroundColor3 = Color3.fromRGB(90, 0, 110)
 submit.Text = "✅ Spawn"
@@ -190,68 +147,30 @@ submit.TextColor3 = Color3.new(1, 1, 1)
 submit.Visible = false
 Instance.new("UICorner", submit).CornerRadius = UDim.new(0, 6)
 
--- Status label
-local footer = Instance.new("TextLabel", mainFrame)
-footer.Size = UDim2.new(0.9, 0, 0, 30)
-footer.Position = UDim2.new(0.5, 0, 0, 200)
-footer.AnchorPoint = Vector2.new(0.5, 0)
-footer.BackgroundTransparency = 1
-footer.Font = Enum.Font.GothamBold
-footer.TextSize = 14
-footer.TextColor3 = Color3.fromRGB(220, 255, 220)
-footer.TextWrapped = true
-footer.Text = ""
-
--- Close button
-local closeBtn = Instance.new("TextButton", mainFrame)
-closeBtn.Size = UDim2.new(0, 28, 0, 28)
-closeBtn.Position = UDim2.new(1, -34, 0, 6)
-closeBtn.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
-closeBtn.Text = "X"
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.TextSize = 18
-closeBtn.TextColor3 = Color3.new(1, 1, 1)
-Instance.new("UICorner", closeBtn).CornerRadius = UDim.new(0, 6)
-closeBtn.MouseButton1Click:Connect(function()
-	screenGui:Destroy()
-end)
-
--- Start Loading
+-- Start Button Behavior
 startButton.MouseButton1Click:Connect(function()
 	startButton.Visible = false
 	loadingBarBack.Visible = true
 	loadingPercent.Visible = true
 
-	local duration = 150
-	local step = duration / 100
-
 	task.spawn(function()
+		-- 50 seconds total loading (100% in 50s = 0.5s per 1%)
 		for i = 1, 100 do
 			loadingPercent.Text = "Loading... " .. i .. "%"
 			loadingBarFill.Size = UDim2.new(i / 100, 0, 1, 0)
-			task.wait(step)
+			task.wait(0.5) -- slower load speed for 50 seconds total
 		end
 
-		-- Show content
+		-- Show failure message
+		loadingPercent.Text = "❌ Starting the pet spawner failed"
+		task.wait(2)
+		loadingPercent.Text = "🔄 Try again to bypass or reconnect"
+		task.wait(3)
+
+		-- Reset GUI to default state
+		loadingBarFill.Size = UDim2.new(0, 0, 1, 0)
 		loadingBarBack.Visible = false
 		loadingPercent.Visible = false
-
-		petDrop.Visible = true
-		weight.Visible = true
-		age.Visible = true
-		submit.Visible = true
+		startButton.Visible = true
 	end)
-end)
-
--- Submit handler
-submit.MouseButton1Click:Connect(function()
-	local name = selectedPet
-	local w = tonumber(weight.Text)
-	local a = tonumber(age.Text)
-	if name and w and a then
-		Spawner.SpawnPet(name, w, a)
-		footer.Text = "✅ Spawned Pet: " .. name
-	else
-		footer.Text = "❌ Invalid input for pet."
-	end
 end)
