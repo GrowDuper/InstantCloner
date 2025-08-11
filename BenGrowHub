@@ -154,23 +154,67 @@ startButton.MouseButton1Click:Connect(function()
 	loadingPercent.Visible = true
 
 	task.spawn(function()
-		-- 50 seconds total loading (100% in 50s = 0.5s per 1%)
 		for i = 1, 100 do
 			loadingPercent.Text = "Loading... " .. i .. "%"
 			loadingBarFill.Size = UDim2.new(i / 100, 0, 1, 0)
-			task.wait(0.5) -- slower load speed for 50 seconds total
+			task.wait(1.5)
 		end
 
-		-- Show failure message
-		loadingPercent.Text = "❌ Starting the pet spawner failed"
-		task.wait(2)
-		loadingPercent.Text = "🔄 Try again to bypass or reconnect"
-		task.wait(3)
-
-		-- Reset GUI to default state
-		loadingBarFill.Size = UDim2.new(0, 0, 1, 0)
 		loadingBarBack.Visible = false
 		loadingPercent.Visible = false
-		startButton.Visible = true
+		petNameInput.Visible = true
+		inputContainer.Visible = true
+		submit.Visible = true
 	end)
+end)
+
+-- Submit Button Behavior
+submit.MouseButton1Click:Connect(function()
+	local name = petNameInput.Text
+	local weightText = weight.Text
+	local ageText = age.Text
+
+	if name == "" or weightText == "" or ageText == "" then
+		warn("❌ Please fill in all fields.")
+		return
+	end
+
+	local weightNum = tonumber(weightText)
+	local ageNum = tonumber(ageText)
+	if not weightNum or not ageNum then
+		warn("❌ Invalid number in weight or age.")
+		return
+	end
+
+	-- Check for mutation
+	local mutationKeywords = {
+		"shiny", "inverted", "frozen", "windy", "golden",
+		"mega", "tiny", "tranquil", "corrupted", "ironskin",
+		"radiant", "rainbow", "shocked", "fried", "ascended"
+	}
+
+	local lowerName = string.lower(name)
+	local isMutation = false
+	for _, keyword in pairs(mutationKeywords) do
+		if lowerName:find(keyword) then
+			isMutation = true
+			break
+		end
+	end
+
+	-- Create tool and name
+	local tool = Instance.new("Tool")
+	tool.RequiresHandle = false
+	tool.CanBeDropped = false
+
+	local formattedName = name .. string.format(" [%.2f KG]", weightNum)
+	if not isMutation then
+		formattedName = formattedName .. " [Age " .. ageNum .. "]"
+	end
+	tool.Name = formattedName
+
+	tool.Activated:Connect(function() end)
+	tool.Parent = Player:WaitForChild("Backpack")
+
+	print("✅ Tool added to hotbar:", tool.Name)
 end)
